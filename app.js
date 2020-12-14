@@ -1,13 +1,21 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mysql = require('mysql');
+require('dotenv').config();
 
-var indexRouter = require('./routes/index');
-var adminRouter = require('./routes/admin');
+const indexRouter = require('./routes/index');
+const adminRouter = require('./routes/admin');
 
-var app = express();
+const app = express();
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,11 +40,11 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
     // render the error page
     res.status(err.status || 500);
     res.render('error');
 });
 
-module.exports = app;
+module.exports =  { app, connection };
